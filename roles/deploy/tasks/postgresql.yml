@@ -1,0 +1,69 @@
+---
+
+# Install required libraries
+- name: Installing postgresql-{{postgresql_version}}
+  apt: 
+    pkg: '{{ item }}'
+    state: 'present'
+  with_items:
+    - postgresql-{{ postgresql_version }}
+    - libpq-dev
+    - python-psycopg2
+  tags:
+    - backend-setup
+    - postgresql-install
+
+# Upload the unsafe user settings
+- name: temporarily allow unsafe access
+  template: src=pg_hba_unsafe.conf dest={{ file_postgresql_users }} force=yes
+  tags:
+    - backend-setup
+    - postgresql-install
+
+# Create the run directory so that postges can create a lock file (work-around)
+- name: Create postgres run dir
+  file:
+    path=/var/run/postgresql
+    state=directory
+    owner=postgres
+    group=postgres
+    mode=755
+  tags:
+    - backend-setup
+    - postgresql-install
+
+# Restart PostgreSQL to allow permission change to take effect.
+- name: restart postgresql
+  service: name=postgresql state=restarted
+  tags:
+    - backend-setup
+    - postgresql-install
+
+# Alter the default postgres password
+- name: assigning postgres password
+  command: psql -U postgres -c "ALTER USER postgres WITH PASSWORD 'postgres'"
+  tags:
+    - backend-setup
+    - postgresql-install
+
+# Executing command to create 'prossimo' DB
+- name: Creating prossimo database
+  command: psql -U postgres -c "CREATE DATABASE prossimo"
+  ignore_errors: yes
+  tags:
+    - backend-setup
+    - postgresql-install
+
+# Reload the default user settings
+- name: securing postgresql access
+  template: src=pg_hba.conf dest={{ file_postgresql_users }} force=yes
+  tags:
+    - backend-setup
+    - postgresql-install
+
+# Restart PostgreSQL to allow permission change to take effect.
+- name: restart postgresql
+  service: name=postgresql state=restarted
+  tags:
+    - backend-setup
+    - postgresql-install

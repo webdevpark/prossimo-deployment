@@ -1,0 +1,23 @@
+---
+- name: Install acl
+  apt:
+    pkg: 'acl'
+    state: 'present'
+  tags:
+  - backend-setup
+  - permission
+
+- name: Get owner that have root permission
+  shell: ps axo user,comm | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\\  -f1
+  register: HTTPDUSER
+  tags:
+  - backend-setup
+  - permission
+
+- name: Set permissions
+  shell: 
+    cd /var/www/backend; setfacl -R -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX app/cache app/logs; setfacl -dR -m u:"$HTTPDUSER":rwX -m u:`whoami`:rwX app/cache app/logs
+  when: HTTPDUSER.stdout
+  tags:
+  - backend-setup
+  - permission

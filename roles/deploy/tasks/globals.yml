@@ -1,0 +1,16 @@
+---
+
+- name: Create schema and migrate it to latest version and load fixtures
+  shell: cd {{ json_path_for_composer_install }};php app/console doctrine:schema:drop --force --no-interaction && php app/console doctrine:schema:update --force --no-interaction && php app/console doctrine:fixtures:load --no-interaction
+  when: composer_installed is defined and composer_installed
+  tags: 
+  - backend-setup
+  - global-config
+
+- name: Create superuser
+  shell: cd {{ json_path_for_composer_install }};php app/console fos:user:create admin admin@prossimo.us P@$$W0RD --super-admin
+  when: composer_installed is defined and composer_installed
+  ignore_errors: yes
+  tags:
+  - backend-setup
+  - global-config

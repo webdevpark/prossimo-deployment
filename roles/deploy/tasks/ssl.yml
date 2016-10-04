@@ -1,0 +1,25 @@
+- name: Create the SSH public key file
+  copy: src={{pub_key_path}} dest=/root/.ssh mode=0644
+  tags:
+  - ssh-copy
+  - frontend-setup
+  - frontend-repo-deploy
+  - frontend-repo-update
+  - backend-setup
+  - backend-repo-deploy
+  - backend-repo-update
+  - repositories-deploy
+  - repositories-update
+
+- name: Create the SSH private key file
+  copy: src={{private_key_path}} dest=/root/.ssh mode=0600
+  tags:
+  - ssh-copy
+  - frontend-setup
+  - frontend-repo-deploy
+  - frontend-repo-update
+  - backend-setup
+  - backend-repo-deploy
+  - backend-repo-update
+  - repositories-deploy
+  - repositories-update

@@ -1,0 +1,42 @@
+---
+
+# command dpkg --configure -a
+- name: dpkg --configure -a
+  command: dpkg --configure -a
+
+# Update the apt cache (if possible)
+- name: Update APT cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 36000
+#  when: 'offline_install is not defined'
+  ignore_errors: True
+
+# Installing git package
+- name: Installing git
+  apt:
+    pkg: '{{ item }}'
+    state: 'latest'
+  with_items:
+    - git
+  tags:
+  - git-install
+
+- name: Ensure git's dependencies are installed
+  command: which git
+  changed_when: false
+  failed_when: false
+  register: git_installed
+  tags:
+  - git-install
+
+- include: ssl.yml
+- include: php5.yml
+- include: nginx.yml
+- include: postgresql.yml
+- include: backend.yml
+- include: permissions.yml
+- include: composer.yml
+- include: globals.yml
+- include: frontend-packages.yml
+- include: frontend.yml

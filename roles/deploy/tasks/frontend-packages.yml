@@ -1,0 +1,45 @@
+---
+
+- name: Install node.js and npm Packages | apt
+  apt:
+    state: latest
+    pkg: '{{ item }}'
+  with_items:
+    - nodejs
+    - npm
+  tags:
+  - frontend-setup
+  - nodejs-install
+
+- file: src=/usr/bin/nodejs dest=/usr/local/bin/node state=link
+  tags:
+  - frontend-setup
+  - nodejs-install
+  - node-link
+
+- name: Install Bower and grund-cli Packages | npm
+  npm:
+    state: 'present'
+    global: yes
+    name: '{{ item }}'
+  with_items:
+    - bower
+    - grunt-cli
+  tags:
+  - frontend-setup
+  - nodejs-install
+
+- name: Creating 'www-deployer' admin user
+  user: name='www-deployer' state=present comment="Deploy User" group='sudo' password='rootroot'
+  tags:
+  - frontend-setup
+  - nodejs-install
+  - user-add
+
+- name: Run './update.sh'
+  shell: cd /var/www/prossimo; ./update.sh staging --no-interaction
+  become: yes
+  become_user: www-deployer
+  tags:
+  - frontend-setup
+  - prossimo-update

@@ -1,0 +1,7 @@
+---
+- name: deploying prossimo front-end and back-end app
+  hosts: prossimo-webservers
+  remote_user: root
+
+  roles:
+  - {role: deploy}

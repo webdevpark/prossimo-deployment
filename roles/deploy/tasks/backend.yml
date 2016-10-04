@@ -1,0 +1,45 @@
+---
+
+- name: Creating {{repo_backend_des_path}} directory
+  file: dest={{repo_backend_des_path}} state=directory recurse=yes owner='www-data' group='www-data' mode=0755
+  tags:
+    - backend-setup
+    - backend-repo-deploy
+    - repositories-deploy
+
+- name: Checking a directory to copy back-end app
+  stat: path={{repo_backend_des_path}}
+  register: backend_dir
+  tags:
+    - backend-setup
+    - backend-repo-deploy
+    - repositories-deploy
+
+- name: Make sure the known hosts file exists
+  file: "path={{ ssh_known_hosts_file }} state=touch"
+  tags:
+  - ssh
+
+- name: Check host name availability
+  shell: "ssh-keygen -f {{ ssh_known_hosts_file }} -F {{ item }}"
+  with_items: ssh_known_hosts
+  register: ssh_known_host_results
+  ignore_errors: yes
+  tags:
+  - ssh
+
+- name: Scan the public key
+  shell: "{{ ssh_known_hosts_command}} {{ item.item }} >> {{ ssh_known_hosts_file }}"
+  with_items: ssh_known_host_results.results
+  when: item.stdout == ""
+  tags:
+  - ssh
+- name: Cloning 'prossimo-backend' repository from bitbucket
+  git: dest={{repo_backend_des_path}} repo={{git_backend_repo}} accept_hostkey=yes key_file=/root/.ssh/id_rsa_prossimo update=yes force=yes
+  when: backend_dir.stat.isdir is defined and backend_dir.stat.isdir and git_installed is defined and git_installed
+  tags:
+    - backend-setup
+    - backend-repo-deploy
+    - backend-repo-update
+    - repositories-deploy
+    - repositories-update

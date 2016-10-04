@@ -1,0 +1,29 @@
+---
+
+  repo_frontend_des_path: /var/www/prossimo
+  repo_backend_des_path: /var/www/backend
+  pub_key_path: id_rsa_prossimo.pub
+  private_key_path: id_rsa_prossimo
+  git_frontend_repo: git@bitbucket.org:prossimo/prossimo-app.git
+  git_backend_repo: git@bitbucket.org:prossimo/prossimo-backend.git
+  json_path_for_composer_install:  /var/www/backend
+
+  # POSTGRESQL GLOBAL VARIABLES
+
+  # Version of PostgreSQL to be installed
+  postgresql_version: 9.3
+  # Location of the configuration files
+  dir_postgresql_config: "{{ global_config_dir }}/postgresql"
+  # Original location of the configuration file
+  dir_postgresql_config_default: '/etc/postgresql/{{ postgresql_version }}/main/'
+  # Configuration file location
+  file_postgresql_users: '/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf'
+  # configuration files exposed to the admin user
+  files_configuration:
+    - pg_hba.conf
+    - pg_ident.conf
+
+  ssh_known_hosts_command: "ssh-keyscan -H -T 10"
+  ssh_known_hosts_file: "/etc/ssh/ssh_known_hosts"
+  ssh_known_hosts:
+    - 192.168.0.25

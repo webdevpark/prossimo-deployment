@@ -1,0 +1,43 @@
+- name: Install composer installation dependency packages
+  apt: 
+    pkg: '{{ item }}'
+    state: 'present'
+  with_items:
+    - wget
+    - curl
+    - make
+    - g++
+    - gcc
+    - libcurl4-openssl-dev
+    - libsasl2-2
+    - libsasl2-dev
+    - libcurl3
+  tags:
+  - backend-setup
+  - composer-install
+
+- name: Install composer
+  shell: curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin creates=/usr/local/bin/composer
+  tags: 
+  - backend-setup
+  - composer-install
+
+- name: Rename composer.phar to composer
+  shell: mv /usr/local/bin/composer.phar /usr/local/bin/composer creates=/usr/local/bin/composer
+  tags:
+  - backend-setup
+  - composer-install
+
+- name: Make composer executable
+  file: path=/usr/local/bin/composer mode=a+x state=file
+  tags: 
+  - backend-setup
+  - composer-install
+
+- name: Run 'composer install'
+  shell: >
+    cd {{ json_path_for_composer_install }};composer install --no-interaction
+  register: composer_installed
+  tags: 
+  - backend-setup
+  - composer-install
